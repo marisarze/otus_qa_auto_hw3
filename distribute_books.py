@@ -1,4 +1,5 @@
 import time
+from typing import OrderedDict
 
 
 def benchmark(func):
@@ -58,10 +59,20 @@ def distribute_books_v2(users, books, reference):
 if __name__ == "__main__":
     import json
     import csv
+    from collections import OrderedDict
 
     with open("data/books.csv", "r") as csv_file:
-        reader = csv.DictReader(csv_file, delimiter=',')
-        books = [row for row in reader]
+        reader = csv.reader(csv_file, delimiter=',')
+        headers = next(reader)
+        headers = list(map(lambda x: x.lower(), headers))
+        books = []
+        sample = OrderedDict([("title", str), ("author", str), ("pages", int), ("genre", str)])
+        for row in reader:
+            entry = dict(zip(headers, row))
+            ordered_entry = OrderedDict()
+            for key, value_type in sample.items():
+                ordered_entry[key] = value_type(entry[key])
+            books.append(ordered_entry)
     
     with open("data/users.json", "r") as json_file:
         users = json.load(json_file)
